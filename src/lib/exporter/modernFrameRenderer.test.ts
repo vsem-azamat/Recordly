@@ -244,29 +244,47 @@ describe("ModernFrameRenderer backend order", () => {
 		{
 			platform: "Linux",
 			userAgent: LINUX_USER_AGENT,
+			webgpu: true,
 			preference: undefined,
 			expected: "webgl",
 		},
 		{
 			platform: "Linux",
 			userAgent: LINUX_USER_AGENT,
+			webgpu: true,
 			preference: "webgpu",
+			expected: "webgpu",
+		},
+		{
+			platform: "Linux",
+			userAgent: LINUX_USER_AGENT,
+			webgpu: true,
+			preference: "webgl",
+			expected: "webgl",
+		},
+		{
+			platform: "Windows",
+			userAgent: WINDOWS_USER_AGENT,
+			webgpu: true,
+			preference: undefined,
 			expected: "webgpu",
 		},
 		{
 			platform: "Windows",
 			userAgent: WINDOWS_USER_AGENT,
+			webgpu: false,
 			preference: undefined,
-			expected: "webgpu",
+			expected: "webgl",
 		},
-	] as const)("tries $expected first on $platform with WebGPU available and preference $preference", async ({
+	] as const)("tries $expected first on $platform with WebGPU available: $webgpu and preference $preference", async ({
 		userAgent,
+		webgpu,
 		preference,
 		expected,
 	}) => {
 		pixiApplicationInstancesMock.length = 0;
 		pixiInitializationErrorsMock.length = 0;
-		vi.stubGlobal("navigator", { gpu: {}, userAgent });
+		vi.stubGlobal("navigator", webgpu ? { gpu: {}, userAgent } : { userAgent });
 
 		try {
 			const renderer = createRenderer() as unknown as {
